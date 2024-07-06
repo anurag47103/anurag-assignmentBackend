@@ -4,13 +4,19 @@ services:
     image: postgres:12
     restart: always
     environment:
-      POSTGRES_USER: your_db_user
-      POSTGRES_PASSWORD: your_db_password
-      POSTGRES_DB: your_db_name
+      POSTGRES_USER: anurag
+      POSTGRES_PASSWORD: anurag123
+      POSTGRES_DB: contactDB
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U anurag"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   web:
     build: .
@@ -18,12 +24,10 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - postgres
-    environment:
-      - DB_USER=your_db_user
-      - DB_PASSWORD=your_db_password
-      - DB_NAME=your_db_name
-      - DB_HOST=postgres
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
 
 volumes:
   pgdata:
