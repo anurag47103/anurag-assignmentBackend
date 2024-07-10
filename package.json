@@ -5,10 +5,12 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --watch src --exec ts-node src/index.ts",
-    "start": "node dist/index.js", 
+    "start": "node dist/src/index.js", 
     "build": "tsc",
     "db:init": "ts-node src/config/initDb.ts", 
-    "dev:run": "ts-node src/index.ts"
+    "dev:run": "ts-node src/index.ts",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up --build",
+    "docker:prod": "docker-compose -f docker-compose.prod.yml up --build"
   },
   "keywords": [],
   "author": "",

@@ -5,19 +5,17 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 
-# Build stage
-FROM base AS build
-ENV NODE_ENV=production
-RUN npx tsc
+# Development stage
+FROM base AS development
+ENV NODE_ENV=development
+RUN npm install --only=development
+CMD ["npm", "run", "dev"]
 
 # Production stage
-FROM build AS production
-WORKDIR /usr/src/app
-COPY --from=build /usr/src/app/dist ./dist
-COPY --from=build /usr/src/app/package*.json ./
-COPY --from=build /usr/src/app/node_modules ./node_modules
+FROM base AS production
 ENV NODE_ENV=production
-CMD ["node", "dist/src/index.js"]
+RUN npm run build
+CMD ["npm", "run", "start"]
 
 # Expose port
 EXPOSE 3000
