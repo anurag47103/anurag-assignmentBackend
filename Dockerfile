@@ -1,21 +1,23 @@
-FROM node:14
-
-# Create app directory
+# Base stage
+FROM node:14 AS base
 WORKDIR /usr/src/app
-
-# Install app dependencies
 COPY package*.json ./
-
 RUN npm install
-
-# Copy app source code
 COPY . .
 
-# Build the TypeScript code
-RUN npm run build
+# Build stage
+FROM base AS build
+ENV NODE_ENV=production
+RUN npx tsc
+
+# Production stage
+FROM build AS production
+WORKDIR /usr/src/app
+COPY --from=build /usr/src/app/dist ./dist
+COPY --from=build /usr/src/app/package*.json ./
+COPY --from=build /usr/src/app/node_modules ./node_modules
+ENV NODE_ENV=production
+CMD ["node", "dist/src/index.js"]
 
 # Expose port
 EXPOSE 3000
-
-# Command to run the app
-CMD [ "node", "dist/index.js" ]
